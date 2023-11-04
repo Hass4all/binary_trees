@@ -1,63 +1,81 @@
 #include "binary_trees.h"
 
 /**
- * is_leaf - Entry Function
- * @node: Pointer
- * Return: 1 Otherwise 0
- */
-unsigned char is_leaf(const binary_tree_t *node)
-{
-return ((node->left == NULL && node->right == NULL) ? 1 : 0);
-}
-
-/**
- * depth - Entry Function
- * @tree: Pointer
- * Return: Depth of node
- */
-size_t depth(const binary_tree_t *tree)
-{
-return (tree->parent != NULL ? 1 + depth(tree->parent) : 0);
-}
-
-/**
- * get_leaf - Entry Function
- * @tree: Pointer
- * Return: Pointer to the first leaf
- */
-const binary_tree_t *get_leaf(const binary_tree_t *tree)
-{
-if (is_leaf(tree) == 1)
-	return (tree);
-return (tree->left ? get_leaf(tree->left) : get_leaf(tree->right));
-}
-
-/**
- * perfect_recursive - Entry Function
- * @tree: Pointer
- * @leaf_depth: size_t
- * @level: size_t
- * Return: 1 Otherwise 0
- */
-int perfect_recursive(const binary_tree_t *tree,
-		size_t leaf_depth, size_t level)
-{
-if (is_leaf(tree))
-	return (level == leaf_depth ? 1 : 0);
-if (tree->left == NULL || tree->right == NULL)
-	return (0);
-return (perfect_recursive(tree->left, leaf_depth, level + 1) &&
-		perfect_recursive(tree->right, leaf_depth, level + 1));
-}
-
-/**
- * binary_tree_is_perfect - Entry Function
- * @tree: Pointer
- * Return: 1 Otherwise 0
+ * binary_tree_is_perfect - checks if a binary tree is perfect
+ * @tree: a pointer to the root node of the tree to check
+ *
+ * Return: 1 if the tree is perfect
+ *         0 if the tree is not perfect
+ *         0 if tree is NULL
  */
 int binary_tree_is_perfect(const binary_tree_t *tree)
 {
-if (tree == NULL)
-	return (0);
-return (perfect_recursive(tree, depth(get_leaf(tree)), 0));
+	size_t height = 0;
+	size_t nodes = 0;
+	size_t power = 0;
+
+	if (!tree)
+		return (0);
+
+	if (!tree->right && !tree->left)
+		return (1);
+
+	height = binary_tree_height(tree);
+	nodes = binary_tree_size(tree);
+
+	power = (size_t)_pow_recursion(2, height + 1);
+	return (power - 1 == nodes);
+}
+
+/**
+ *_pow_recursion - returns the value of x raised to the power of y
+ *@x: the value to exponentiate
+ *@y: the power to raise x to
+ *Return: x to the power of y, or -1 if y is negative
+ */
+
+int _pow_recursion(int x, int y)
+{
+	if (y < 0)
+		return (-1);
+	if (y == 0)
+		return (1);
+	else
+		return (x * _pow_recursion(x, y - 1));
+
+}
+
+/**
+ * binary_tree_size - measures the size of a binary tree
+ * @tree: tree to measure the size of
+ *
+ * Return: size of the tree
+ *         0 if tree is NULL
+ */
+size_t binary_tree_size(const binary_tree_t *tree)
+{
+	if (!tree)
+		return (0);
+
+	return (binary_tree_size(tree->left) + binary_tree_size(tree->right) + 1);
+}
+
+/**
+ * binary_tree_height - measures the height of a binary tree
+ * @tree: tree to measure the height of
+ *
+ * Return: height of the tree
+ *         0 if tree is NULL
+ */
+size_t binary_tree_height(const binary_tree_t *tree)
+{
+	size_t height_l = 0;
+	size_t height_r = 0;
+
+	if (!tree)
+		return (0);
+
+	height_l = tree->left ? 1 + binary_tree_height(tree->left) : 0;
+	height_r = tree->right ? 1 + binary_tree_height(tree->right) : 0;
+	return (height_l > height_r ? height_l : height_r);
 }
